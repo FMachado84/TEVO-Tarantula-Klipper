@@ -1,0 +1,312 @@
+########################################
+# Stepper & TMC2209 Configuration
+########################################
+
+[stepper_x]
+step_pin: PE2
+dir_pin: PE1
+enable_pin: !PE3
+microsteps: 32
+rotation_distance: 40
+full_steps_per_rotation: 400
+#endstop_pin: ^!PC1
+position_endstop: 0
+position_max: 209
+homing_speed: 20
+homing_retract_dist: 0
+endstop_pin: tmc2209_stepper_x:virtual_endstop
+
+[tmc2209 stepper_x]
+uart_pin: PE0
+run_current: 0.900
+hold_current: 0.540
+diag_pin: ^PC1     # Set to MCU pin connected to TMC DIAG pin
+driver_SGTHRS: 90  # 255 is most sensitive value, 0 is least sensitive
+stealthchop_threshold: 3030
+
+[stepper_y]
+step_pin: PD5
+dir_pin: PD4
+enable_pin: !PD6
+microsteps: 32
+rotation_distance: 40
+full_steps_per_rotation: 400
+#endstop_pin: ^!PC3
+position_endstop: 0
+position_max: 274
+homing_speed: 20
+homing_retract_dist: 0
+endstop_pin: tmc2209_stepper_y:virtual_endstop
+
+[tmc2209 stepper_y]
+uart_pin: PD3
+run_current: 0.900
+hold_current: 0.540
+diag_pin: ^PC3     # Set to MCU pin connected to TMC DIAG pin
+driver_SGTHRS: 95  # 255 is most sensitive value, 0 is least sensitive
+stealthchop_threshold: 3030
+
+[stepper_z]
+step_pin: PA15
+dir_pin: PA8
+enable_pin: !PD1
+homing_speed: 10
+microsteps: 32
+rotation_distance: 8
+full_steps_per_rotation: 400
+endstop_pin: probe:z_virtual_endstop
+position_max: 200
+position_min: -2.5
+
+[tmc2209 stepper_z]
+uart_pin: PD0
+run_current: 1.2
+hold_current: 0.540
+stealthchop_threshold: 55
+#diag_pin:
+
+[extruder]
+step_pin: PD15
+dir_pin: PD14
+enable_pin: !PC7
+microsteps: 32
+rotation_distance: 23.000
+full_steps_per_rotation: 400
+gear_ratio: 3:1
+nozzle_diameter: 0.500
+filament_diameter: 1.750
+heater_pin: PB3
+sensor_type: ATC Semitec 104GT-2
+sensor_pin: PA2
+pressure_advance = 0.3600
+#control: pid
+#pid_Kp: 22.2
+#pid_Ki: 1.08
+#pid_Kd: 114
+min_temp: 0
+max_temp: 250
+min_extrude_temp: 0
+
+[heater_fan hotend_fan]
+pin: PB5
+heater: extruder
+fan_speed: 1.0
+
+[tmc2209 extruder]
+uart_pin: PC6
+run_current: 0.9
+hold_current: 0.5
+driver_IHOLDDELAY: 8
+driver_TPOWERDOWN: 20
+driver_TBL: 2
+driver_TOFF: 3
+driver_HEND: 0
+driver_HSTRT: 5
+driver_PWM_AUTOGRAD: True
+driver_PWM_AUTOSCALE: True
+driver_PWM_LIM: 12
+driver_PWM_REG: 8
+driver_PWM_FREQ: 1
+driver_PWM_GRAD: 14
+driver_PWM_OFS: 36
+stealthchop_threshold: 5000
+#diag_pin:
+
+#[extruder1]
+#step_pin: PD11
+#dir_pin: PD10
+#enable_pin: !PD13
+#microsteps: 16
+#heater_pin: PB4
+#sensor_pin: PA3
+#...
+
+#[tmc2209 extruder1]
+#uart_pin: PD12
+#run_current: 0.600
+#diag_pin:
+
+########################################
+# Bed Leveling & Homing configuration
+########################################
+
+[bltouch]
+sensor_pin: ^PE4
+control_pin: PE5
+x_offset:+34
+y_offset:+2
+speed: 5
+pin_up_reports_not_triggered: True
+pin_up_touch_mode_reports_triggered: False
+pin_move_time: 0.3
+samples: 2
+sample_retract_dist: 4.0
+samples_result: median
+samples_tolerance: 0.05
+samples_tolerance_retries: 20
+
+[bed_mesh]
+speed: 50
+horizontal_move_z: 8
+mesh_min: 34, 2
+mesh_max: 210, 270
+probe_count: 6,6
+fade_start: 1.0
+mesh_pps: 2,2
+algorithm: bicubic
+ 
+[gcode_macro G29]
+gcode:
+    BED_MESH_CALIBRATE
+    
+[safe_z_home]
+home_xy_position: 105,137
+speed: 50
+z_hop: 10
+z_hop_speed: 10
+
+[heater_bed]
+heater_pin: PD7
+sensor_type: NTC 100K beta 3950
+sensor_pin: PA1
+#control: watermark
+min_temp: 0
+max_temp: 130
+
+[fan]
+pin: PB7
+
+#[heater_fan fan1]
+#pin: PB6
+
+#[heater_fan fan2]
+#pin: PB5
+
+[output_pin motor_power]
+pin: PC13
+value: 1
+
+[mcu]
+serial: /dev/serial/by-id/usb-Klipper_stm32f407xx_170033000F47393438343535-if00
+
+[printer]
+kinematics: cartesian
+max_velocity: 300
+max_accel: 4000
+max_z_velocity: 15
+max_z_accel: 100
+square_corner_velocity: 5
+
+[force_move]
+enable_force_move: True
+#   Set to true to enable FORCE_MOVE and SET_KINEMATIC_POSITION
+#   extended G-Code commands. The default is false.
+
+[mcu rpi]
+serial: /tmp/klipper_host_mcu
+
+[adxl345]
+cs_pin: rpi:None
+
+[resonance_tester]
+accel_chip: adxl345
+probe_points:
+    105,137,25
+    
+[gcode_arcs]
+resolution: 0.5
+
+########################################
+# EXP1 / EXP2 (display) pins
+########################################
+
+[board_pins]
+aliases:
+    # EXP1 header
+    EXP1_1=PC5, EXP1_3=PB1, EXP1_5=PE10, EXP1_7=PE12, EXP1_9=<GND>,
+    EXP1_2=PB0, EXP1_4=PE9, EXP1_6=PE11, EXP1_8=PE13, EXP1_10=<5V>,
+    # EXP2 header
+    EXP2_1=PA6, EXP2_3=PE7, EXP2_5=PB2, EXP2_7=PC4,   EXP2_9=<GND>,
+    EXP2_2=PA5, EXP2_4=PA4, EXP2_6=PA7, EXP2_8=<RST>, EXP2_10=<NC>
+
+########################################
+# Display Configuration
+########################################
+
+[display]
+lcd_type: st7920
+cs_pin: EXP1_4
+sclk_pin: EXP1_5
+sid_pin: EXP1_3
+encoder_pins: ^EXP2_3, ^EXP2_5
+click_pin: ^!EXP1_2
+#kill_pin: ^!EXP2_8
+
+[output_pin beeper]
+pin: EXP1_1
+
+########################################
+# G-Code Macros
+########################################
+
+[gcode_macro START_PRINT]
+gcode:
+    CLEAR_PAUSE
+    SET_IDLE_TIMEOUT TIMEOUT=900
+    G90                  ; absolute positioning
+    M82                  ; absolute extruder mode
+    M107                 ; turn fan off
+    G28                  ; move to origin
+    G1 X0 Y180 Z0.1 F5000; Nozzle to left side of bed at Z0
+    G91                  ; Relative positioning
+    G1 E8 F900           ; Extrude 8mm Of Filament
+    G1 Y-80 F5000        ; Move nozzle 80mm down the bed
+    G90                  ; absolute positioning
+    
+[gcode_macro END_PRINT]
+gcode:
+    G91             ; relative positioning
+    G1 Z10 F600     ; move Z Axis up
+    G1 E-5 F300     ; retract filament
+    G90             ; absolute positioning
+    G1 X0 Y273 F5000; present print
+    M107            ; turn fan off
+    M104 S0         ; turn-off hotend
+    M140 S0         ; turn-off heat bed
+    M84             ; turn off all motors
+
+######################################################################
+# T0 Override Command (Stops Unknown Command: 'T0' Issue
+######################################################################
+
+[gcode_macro T0]
+gcode:
+  ACTIVATE_EXTRUDER EXTRUDER=extruder
+
+######################################################################
+# Filament Change
+######################################################################
+
+# M600: Filament Change. This macro will pause the printer, move the
+# tool to the change position, and retract the filament 50mm. Adjust
+# the retraction settings for your own extruder. After filament has
+# been changed, the print can be resumed from its previous position
+# with the "RESUME" gcode.
+
+[pause_resume]
+
+[gcode_macro M600]
+gcode:
+    {% set X = params.X|default(50)|float %}
+    {% set Y = params.Y|default(0)|float %}
+    {% set Z = params.Z|default(10)|float %}
+    SAVE_GCODE_STATE NAME=M600_state
+    PAUSE
+    G91
+    G1 E-.8 F2700
+    G1 Z{Z}
+    G90
+    G1 X{X} Y{Y} F3000
+    G91
+    G1 E-50 F1000
+    RESTORE_GCODE_STATE NAME=M600_state
